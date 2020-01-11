@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>webcam</title>
+</head>
+<body>
+<video id="webcam" width="480" height="360"></video>
+
+<script>
+if (navigator.mediaDevices) {
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+  .then(function onSuccess(stream) {
+    var video = document.getElementById('webcam');
+    video.autoplay = true;
+    video.srcObject = stream;
+  })
+  .catch(function onError() {
+    alert('There has been a problem retreiving the streams - are you running on file:/// or did you disallow access?');
+  });
+} else {
+  alert('getUserMedia is not supported in this browser.');
+}
+
+
+navigator.mediaDevices.getUserMedia({audio:true})
+  .then(function onSuccess(stream) {
+    var recorder = new MediaRecorder(stream);
+
+    var data = [];
+    recorder.ondataavailable = function(e) {
+      data.push(e.data);
+    };
+    recorder.start();
+    recorder.onerror = function(e) {
+      throw e.error || new Error(e.name); // e.name is FF non-spec
+    }
+    recorder.onstop = function(e) {
+      var audio = document.createElement('audio');
+      audio.src = window.URL.createObjectURL(new Blob(data));
+    }
+    setTimeout(function() {
+      rec.stop();
+    }, 5000);
+  })
+  .catch(function onError(error) {
+    console.log(error.message);
+  });
+</script>
+
+ </body>
